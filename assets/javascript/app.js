@@ -1,11 +1,7 @@
-// present question
-// if answering right, congratulate
-// if not right OR if time runs out tell them wrong answer or time ran out...show right answer
-// either way, wait a few seconds, then disply the next question
-// after the final question display stats right/wrong and option to start game again (without reloading page)
-
+// on intial loading of the window object, set up these button click callback functions
 window.onload = function() {
     $(".button").on("click", processAnswer);
+    $(".replayButton").on("click", play);
 };
 
 // This will be my array of qAndAEntry Objects
@@ -23,7 +19,6 @@ function qAndAEntry(question, correctAnswer, choice1, choice2, choice3, choice4)
 }
 
 // Now, let's create some aAndAEntry Objects and stuff them into our array
-qAndAList.push(new qAndAEntry("QUESTION 1", "RESPONSE 2", "RESPONSE 1", "RESPONSE 2", "RESPONSE 3", "RESPONSE 4"));
 qAndAList.push(new qAndAEntry("Which sign does jQuery use as a shortcut for jQuery?",
                               "the $ sign", 
                               "the $ sign", 
@@ -49,38 +44,32 @@ qAndAList.push(new qAndAEntry("What scripting language is jQuery written in?",
                               'C++',
                               'JavaScript'));
 
-// TODO - remove later
-for (i = 0; i < qAndAList.length; i++) {
-    console.log("The question for iter: " + i + " is: " + qAndAList[i].question);
-    console.log("The answer for iter: " + i + " is: " + qAndAList[i].correctAnswer);
-}
 
+// global variables
 var correct = 0;
 var wrong = 0;
 var remainingTime = 20;
 var intervalId = 0;
-
-$("#time").text(remainingTime);
-console.log("remaining time is: " + remainingTime);
-
-
 var currentIndex = 0;
 var currentEntry = Object;
 
-getNextQuestion();
+play();
 
 function getNextQuestion() {
-    currentEntry = qAndAList[currentIndex];
+    if (currentIndex === qAndAList.length) {
+        postFinals();
+    }
+    // put the remainingTime back to 20 seconds to prepare for the next trivia question
+    remainingTime = 20;
+    $("#time").text(remainingTime);
+   currentEntry = qAndAList[currentIndex];
     $(".question").text(currentEntry.question);
     $("#answer1").text(currentEntry.choice1);
     $("#answer2").text(currentEntry.choice2);
     $("#answer3").text(currentEntry.choice3);
     $("#answer4").text(currentEntry.choice4);
-    intervalId = setInterval(countdown, 1000);
+    intervalId = setInterval(countdown, 1000); 
     currentIndex++;   // bump it up for the next time this function is called
-    if (currentIndex === qAndAList.length) {
-        postFinals();
-    }
 }
 
 // count down on our timer (based on seconds) and display it
@@ -95,12 +84,22 @@ function countdown() {
 
 // push final right/wrong answers to the user
 function postFinals() {
+    clearInterval(intervalId);
     alert("Totals.........Right [" + correct + "] Wrong [" + wrong + "]");
-    reset();
+    $(".replayButton").show();
 }
 
-function reset() {
+function play() {
     clearInterval(intervalId);
+    $(".replayButton").hide();
+    correct = 0;
+    wrong = 0;
+    remainingTime = 20;
+    intervalId = 0;
+    currentIndex = 0;
+    currentEntry = Object;
+    $("#time").text(remainingTime);
+    getNextQuestion();
 }
 
 // Common function used by all 4 buttons.  Check the answer using generic 'this'
@@ -125,11 +124,15 @@ async function displayAndAutoCloseWindow(win, img) {
         correct++;
     } else {
         wrong++;
-        alert("The correct answer is: " + currentEntry.correctAnswer);
+        $(".answerDiv").text(currentEntry.correctAnswer);
+        // $(".answerDiv").css("display", "block");
+        $(".answerDiv").show();
+        await sleep(5000);
+        $(".answerDiv").hide();
     }
     // put the remainingTime back to 20 seconds to prepare for the next trivia question
-    remainingTime = 20;
-    $("#time").text(remainingTime);
+    // remainingTime = 20;
+    // $("#time").text(remainingTime);
     getNextQuestion();
 }
 
