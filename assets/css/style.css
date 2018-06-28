@@ -54,9 +54,10 @@
     color: #4a60aa;
 }
 
-.qAndA {
+.qAndA, .button {
     text-align: center;
     margin-bottom: 20px;
+    font-size: 20;
 }
 
 /* Responsive stuff here.... */
